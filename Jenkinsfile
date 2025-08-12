@@ -4,12 +4,13 @@ pipeline {
     environment {
         IMAGE_NAME = "my-java-app"
         IMAGE_TAG  = "v1.0"
+        MAVEN_DOCKER_IMAGE = "maven:3.9.6-eclipse-temurin-17"
     }
 
     stages {
         stage('Checkout') {
             steps { 
-                git branch: 'main', url: 'https://github.com/JeevanKumar100/java.git' 
+                git branch: 'main', url: 'https://github.com/JeevanKumar100/java.git'
             }
         }
 
@@ -17,7 +18,7 @@ pipeline {
             steps {
                 script {
                     // Use Maven image to build inside workspace and produce target/*.jar on host via workspace bind
-                    docker.image('maven:3.9.0-openjdk-17').inside {
+                    docker.image("${MAVEN_DOCKER_IMAGE}").inside {
                         sh 'mvn -B clean package -DskipTests'
                     }
                 }
@@ -26,7 +27,9 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                script { docker.build("${IMAGE_NAME}:${IMAGE_TAG}") }
+                script {
+                    docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
+                }
             }
         }
 
